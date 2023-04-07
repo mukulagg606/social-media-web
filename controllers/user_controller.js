@@ -1,8 +1,10 @@
 const User = require("../models/userModel");
 
-module.exports.profile = function(req,res){
+module.exports.profile = async function(req,res){
+    const user = await User.findById(req.params.id);
     return res.render('profile',{
         title:"Profile",
+        profile_user:user,
     });
 }
 
@@ -48,4 +50,13 @@ module.exports.destroySession = function(req,res){
         return console.log(err);
     });
     return res.redirect("/");
+}
+
+module.exports.update = async function(req,res){
+    if(req.user.id == req.params.id){
+        await User.findByIdAndUpdate(req.params.id,req.body);
+        return res.redirect("back");
+    }else{
+        return res.status(401).send("Unauthorized");
+    }
 }

@@ -10,6 +10,7 @@ const customMiddleware = require("./config/middleware");
 const session = require("express-session");
 const passport = require("passport");
 const passportLocal = require("./config/passport-local-strategy");
+const passportJWT = require("./config/passport-jwt-strategy");
 const MongoStore = require("connect-mongo");
 const sassMiddleware = require("node-sass-middleware");
 
@@ -27,6 +28,7 @@ app.use(cookieParser());
 app.use(express.static(__dirname + '/assests'));
 
 app.use(expressLayouts);
+app.use('/uploads',express.static(__dirname+'/uploads'));
 
 //Extract styles and scripts from sub-pages into layout
 app.set("layout extractStyles",true);

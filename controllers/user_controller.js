@@ -56,9 +56,24 @@ module.exports.destroySession = function(req,res){
 
 module.exports.update = async function(req,res){
     if(req.user.id == req.params.id){
-        await User.findByIdAndUpdate(req.params.id,req.body);
+       let user = await User.findById(req.params.id);
+       
+       User.uploadedAvatar(req,res,function(err){
+        if(err){console.log('***Multer Error',err)};
+
+        user.name = req.body.name;
+        user.email = req.body.email;
+        if(req.file){
+            //this is saving the path of uploaded file into avatar field in the user
+            user.avatar = User.avatarPath+"/"+ req.file.filename;
+        }
+       });
+       await user.save();
+       
+        req.flash('success','Profile Updated');
         return res.redirect("back");
     }else{
+        req.flash('error','Unauthorized!');
         return res.status(401).send("Unauthorized");
     }
 }

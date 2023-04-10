@@ -3,6 +3,8 @@ const port = 8000;
 const app = express();
 const expressLayouts = require("express-ejs-layouts");
 const env = require("./config/environment");
+const logger = require("morgan");
+require("./config/view-helpers")(app);
 const db = require("./config/mongoose");
 const cookieParser = require("cookie-parser");
 const flash = require("connect-flash");
@@ -32,7 +34,7 @@ const io = require("socket.io")(chatServer,{
 
 chatServer.listen(5000);
 console.log("Chat Server is listening on port 5000");
-
+if(env.name =='development'){
 app.use(sassMiddleware({
     src: path.join(__dirname,env.asset_path,'/scss'),
     dest: path.join(__dirname,env.asset_path,'/css'),
@@ -40,6 +42,7 @@ app.use(sassMiddleware({
     outputStyle:'expanded',
     prefix:"/css"
 }))
+}
 
 app.use(express.urlencoded());
 app.use(cookieParser());
@@ -48,6 +51,8 @@ app.use(express.static(__dirname + env.asset_path));
 
 app.use(expressLayouts);
 app.use('/uploads',express.static(__dirname+'/uploads'));
+
+app.use(logger(env.morgan.mode,env.morgan.options));
 
 //Extract styles and scripts from sub-pages into layout
 app.set("layout extractStyles",true);

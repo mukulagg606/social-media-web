@@ -2,6 +2,7 @@ const express = require("express");
 const port = 8000;
 const app = express();
 const expressLayouts = require("express-ejs-layouts");
+const env = require("./config/environment");
 const db = require("./config/mongoose");
 const cookieParser = require("cookie-parser");
 const flash = require("connect-flash");
@@ -14,23 +15,27 @@ const passportJWT = require("./config/passport-jwt-strategy");
 const passportGoogle = require("./config/passport-google-oauth2-strategy");
 const MongoStore = require("connect-mongo");
 const sassMiddleware = require("node-sass-middleware");
+const path = require("path");
+
 
 //Setup the chat server to be used with socket.io
 const chatServer = require("http").Server(app);
 const chatSockets = require("./config/chat_sockets").chatSockets(chatServer);
-const io = require("socket.io")(chatServer, {
+const io = require("socket.io")(chatServer,{
     cors: {
       origin: "http://localhost:8000",
-      methods: ["GET", "POST"]
-    }
+      methods: ["GET", "POST"],
+      
+    },
   });
+ 
 
 chatServer.listen(5000);
 console.log("Chat Server is listening on port 5000");
 
 app.use(sassMiddleware({
-    src:"./assests/scss",
-    dest:"./assests/css",
+    src: path.join(__dirname,env.asset_path,'/scss'),
+    dest: path.join(__dirname,env.asset_path,'/css'),
     debug:true,
     outputStyle:'expanded',
     prefix:"/css"
@@ -39,7 +44,7 @@ app.use(sassMiddleware({
 app.use(express.urlencoded());
 app.use(cookieParser());
 
-app.use(express.static(__dirname + '/assests'));
+app.use(express.static(__dirname + env.asset_path));
 
 app.use(expressLayouts);
 app.use('/uploads',express.static(__dirname+'/uploads'));
@@ -54,7 +59,7 @@ app.set("views","views");
 
 app.use(session({
     name:'socialz',
-    secret:'something',
+    secret: env.session_cookie_key,
     saveUninitialized:false,
     resave:false,
     cookie:{

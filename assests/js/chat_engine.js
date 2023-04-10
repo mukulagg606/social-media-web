@@ -31,7 +31,7 @@ class ChatEngine{
 
         });
 
-        $('#send-message').click(function(){
+         $('#send-message').click(function(){
             let msg = $('#chat-message-input').val();
 
             if (msg != ''){
